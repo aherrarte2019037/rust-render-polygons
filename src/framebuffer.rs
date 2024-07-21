@@ -7,15 +7,20 @@ pub struct FrameBuffer {
 }
 
 impl FrameBuffer {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(width: usize, height: usize, background_color: glm::Vec3) -> Self {
         Self {
             width,
             height,
-            pixels: vec![glm::vec3(0.0, 0.0, 0.0); width * height],
+            pixels: vec![background_color; width * height],
         }
     }
 
-    pub fn draw_polygon(&mut self, points: &[glm::Vec2], fill_color: glm::Vec3, border_color: glm::Vec3) {
+    pub fn draw_polygon(
+        &mut self,
+        points: &[glm::Vec2],
+        fill_color: glm::Vec3,
+        border_color: glm::Vec3,
+    ) {
         // Engrosar el borde dibujando múltiples líneas desplazadas alrededor de las coordenadas originales
         let offsets = [
             glm::vec2(0.0, 0.0),
@@ -31,8 +36,8 @@ impl FrameBuffer {
 
         for offset in &offsets {
             for i in 0..points.len() {
-                let start = points[i] + offset;
-                let end = points[(i + 1) % points.len()] + offset;
+                let start = points[i] + *offset;
+                let end = points[(i + 1) % points.len()] + *offset;
                 self.draw_line(start, end, border_color);
             }
         }

@@ -1,5 +1,5 @@
-mod framebuffer;
 mod bmp;
+mod framebuffer;
 
 use framebuffer::FrameBuffer;
 use nalgebra_glm as glm;
@@ -19,11 +19,16 @@ fn main() {
         glm::vec2(193.0, 383.0),
     ];
 
+    // Definir colores
+    let background_color = glm::vec3(0.0, 0.0, 0.0); // Azul
+    let border_color = glm::vec3(1.0, 1.0, 1.0); // Blanco
+    let fill_color = glm::vec3(1.0, 1.0, 0.0); // Amarillo
+
     // Crear el framebuffer
-    let mut fb = FrameBuffer::new(500, 500);
+    let mut fb = FrameBuffer::new(500, 500, background_color);
 
     // Dibujar el polígono
-    fb.draw_polygon(&points, glm::vec3(1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 1.0)); // Amarillo con borde blanco
+    fb.draw_polygon(&points, fill_color, border_color);
 
     // Guardar la imagen
     bmp::save_framebuffer_to_bmp(&fb, "out.bmp").expect("Failed to save BMP file");

@@ -20,9 +20,9 @@ fn main() {
     ];
 
     // Definir colores
-    let background_color = glm::vec3(0.0, 0.0, 0.0); // Azul
-    let border_color = glm::vec3(1.0, 1.0, 1.0); // Blanco
-    let fill_color = glm::vec3(1.0, 1.0, 0.0); // Amarillo
+    let background_color = glm::vec3(0.0, 0.0, 0.0);
+    let border_color = glm::vec3(1.0, 1.0, 1.0);
+    let fill_color = glm::vec3(1.0, 1.0, 0.0);
 
     // Crear el framebuffer
     let mut fb = FrameBuffer::new(500, 500, background_color);

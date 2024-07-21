@@ -1,84 +1,47 @@
 use std::fs::File;
-use std::io::{BufWriter, Write};
-
+use std::io::Write;
 use crate::framebuffer::FrameBuffer;
 
-const BMP_HEADER_SIZE: usize = 54;
-const BMP_PIXEL_OFFSET: usize = 54;
-const BMP_BITS_PER_PIXEL: usize = 32;
+pub fn save_framebuffer_to_bmp(fb: &FrameBuffer, filename: &str) -> std::io::Result<()> {
+    let width = fb.width as u32;
+    let height = fb.height as u32;
+    let mut file = File::create(filename)?;
 
-pub fn write_bmp_file(
-    file_path: &str,
-    buffer: &[u32],
-    width: usize,
-    height: usize,
-) -> std::io::Result<()> {
-    let mut file = BufWriter::new(File::create(file_path)?);
+    // Escribir el encabezado BMP
+    file.write_all(&[
+        0x42, 0x4D, // Signature "BM"
+        0, 0, 0, 0, // File size (placeholder)
+        0, 0,       // Reserved
+        0, 0,       // Reserved
+        54, 0, 0, 0 // Offset to pixel data
+    ])?;
 
-    write_bmp_header(&mut file, width, height)?;
-    write_pixel_data(&mut file, buffer, width, height)?;
+    // Información del encabezado DIB
+    file.write_all(&[
+        40, 0, 0, 0,       // DIB header size
+        (width & 0xFF) as u8, ((width >> 8) & 0xFF) as u8, ((width >> 16) & 0xFF) as u8, ((width >> 24) & 0xFF) as u8, // Width
+        (height & 0xFF) as u8, ((height >> 8) & 0xFF) as u8, ((height >> 16) & 0xFF) as u8, ((height >> 24) & 0xFF) as u8, // Height
+        1, 0,             // Color planes
+        24, 0,            // Bits per pixel
+        0, 0, 0, 0,       // Compression (none)
+        0, 0, 0, 0,       // Image size (placeholder)
+        0, 0, 0, 0,       // Horizontal resolution (placeholder)
+        0, 0, 0, 0,       // Vertical resolution (placeholder)
+        0, 0, 0, 0,       // Colors in color table (none)
+        0, 0, 0, 0,       // Important color count (all)
+    ])?;
 
-    Ok(())
-}
-
-fn write_bmp_header(
-    file: &mut BufWriter<File>,
-    width: usize,
-    height: usize,
-) -> std::io::Result<()> {
-    let file_size = BMP_HEADER_SIZE + (width * height * BMP_BITS_PER_PIXEL) / 8 as usize;
-    let pixel_size = file_size - BMP_HEADER_SIZE;
-
-    // BMP File Header
-    file.write_all(b"BM")?;
-    file.write_all(&(file_size as u32).to_le_bytes())?;
-    file.write_all(&0u32.to_le_bytes())?;
-    file.write_all(&(BMP_PIXEL_OFFSET as u32).to_le_bytes())?;
-
-    // BMP Info Header
-    file.write_all(&40u32.to_le_bytes())?;
-    file.write_all(&(width as u32).to_le_bytes())?;
-    file.write_all(&(height as u32).to_le_bytes())?;
-    file.write_all(&1u16.to_le_bytes())?;
-    file.write_all(&(BMP_BITS_PER_PIXEL as u16).to_le_bytes())?;
-    file.write_all(&0u32.to_le_bytes())?;
-    file.write_all(&(pixel_size as u32).to_le_bytes())?;
-    file.write_all(&0u32.to_le_bytes())?;
-    file.write_all(&0u32.to_le_bytes())?;
-    file.write_all(&0u32.to_le_bytes())?;
-    file.write_all(&0u32.to_le_bytes())?;
-
-    Ok(())
-}
-
-fn write_pixel_data(
-    file: &mut BufWriter<File>,
-    buffer: &[u32],
-    width: usize,
-    height: usize,
-) -> std::io::Result<()> {
-    let padding_size = (4 - (width * BMP_BITS_PER_PIXEL / 8) % 4) % 4;
-    let padding = [0u8; 3];
-
+    // Escribir los datos de los píxeles
     for y in (0..height).rev() {
         for x in 0..width {
-            let pixel = buffer[y * width + x];
-            let bgr = [(pixel >> 16) as u8, (pixel >> 8) as u8, pixel as u8];
-
-            file.write_all(&bgr)?;
+            let pixel = fb.get_pixels()[(y * width + x) as usize];
+            file.write_all(&[
+                (pixel.z * 255.0) as u8,
+                (pixel.y * 255.0) as u8,
+                (pixel.x * 255.0) as u8,
+            ])?;
         }
-
-        file.write_all(&padding[..padding_size])?;
     }
+
     Ok(())
-}
-
-pub trait WriteBmp {
-    fn render_buffer(&self, file_path: &str) -> std::io::Result<()>;
-}
-
-impl WriteBmp for FrameBuffer {
-    fn render_buffer(&self, file_path: &str) -> std::io::Result<()> {
-        write_bmp_file(file_path, &self.buffer, self.width, self.height)
-    }
 }

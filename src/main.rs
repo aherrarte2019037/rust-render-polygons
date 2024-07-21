@@ -2,32 +2,29 @@ mod framebuffer;
 mod bmp;
 
 use framebuffer::FrameBuffer;
-use bmp::WriteBmp;
+use nalgebra_glm as glm;
 
 fn main() {
-    let mut framebuffer = FrameBuffer::new(400, 400);
+    // Definir los puntos del polígono
+    let points = vec![
+        glm::vec2(165.0, 380.0),
+        glm::vec2(185.0, 360.0),
+        glm::vec2(180.0, 330.0),
+        glm::vec2(207.0, 345.0),
+        glm::vec2(233.0, 330.0),
+        glm::vec2(230.0, 360.0),
+        glm::vec2(250.0, 380.0),
+        glm::vec2(220.0, 385.0),
+        glm::vec2(205.0, 410.0),
+        glm::vec2(193.0, 383.0),
+    ];
 
-    framebuffer.set_background_color(0xeb4034);
-    
-    framebuffer.set_current_color(0xeb4034);
-    framebuffer.point(400, 300);
-    framebuffer.point(401, 300);
-    framebuffer.point(400, 301);
-    framebuffer.point(401, 301);
+    // Crear el framebuffer
+    let mut fb = FrameBuffer::new(500, 500);
 
-    framebuffer.set_current_color(0xeb4034);
-    framebuffer.point(200, 150);
-    framebuffer.point(201, 150);
-    framebuffer.point(200, 151);
-    framebuffer.point(201, 151);
+    // Dibujar el polígono
+    fb.draw_polygon(&points, glm::vec3(1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 1.0)); // Amarillo con borde blanco
 
-    framebuffer.set_current_color(0xeb4034);
-    framebuffer.point(600, 450);
-    framebuffer.point(601, 450);
-    framebuffer.point(600, 451);
-    framebuffer.point(601, 451);
-
-    framebuffer.render_buffer("out.bmp").unwrap();
-
-    println!("Framebuffer rendered to out.bmp");
+    // Guardar la imagen
+    bmp::save_framebuffer_to_bmp(&fb, "out.bmp").expect("Failed to save BMP file");
 }

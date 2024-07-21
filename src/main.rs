@@ -29,6 +29,32 @@ fn main() {
         glm::vec2(436.0, 249.0),
         glm::vec2(401.0, 252.0),
     ];
+    let points4 = vec![
+        glm::vec2(413.0, 177.0),
+        glm::vec2(448.0, 159.0),
+        glm::vec2(502.0, 88.0),
+        glm::vec2(553.0, 53.0),
+        glm::vec2(535.0, 36.0),
+        glm::vec2(676.0, 37.0),
+        glm::vec2(660.0, 52.0),
+        glm::vec2(750.0, 145.0),
+        glm::vec2(761.0, 179.0),
+        glm::vec2(672.0, 192.0),
+        glm::vec2(659.0, 214.0),
+        glm::vec2(615.0, 214.0),
+        glm::vec2(632.0, 230.0),
+        glm::vec2(580.0, 230.0),
+        glm::vec2(597.0, 215.0),
+        glm::vec2(552.0, 214.0),
+        glm::vec2(517.0, 144.0),
+        glm::vec2(466.0, 180.0),
+    ];
+    let points5 = vec![
+        glm::vec2(682.0, 175.0),
+        glm::vec2(708.0, 120.0),
+        glm::vec2(735.0, 148.0),
+        glm::vec2(739.0, 170.0),
+    ];
 
     // Definir colores
     let background_color = glm::vec3(0.0, 0.0, 0.0);
@@ -36,7 +62,7 @@ fn main() {
     let mut fill_color = glm::vec3(1.0, 1.0, 0.0);
 
     // Crear el framebuffer
-    let mut fb = FrameBuffer::new(500, 500, background_color);
+    let mut fb = FrameBuffer::new(800, 800, background_color);
 
     // Dibujar el polígono
     fb.draw_polygon(&points, fill_color, border_color);
@@ -46,6 +72,11 @@ fn main() {
 
     fill_color = glm::vec3(1.0, 0.0, 0.0);
     fb.draw_polygon(&points3, fill_color, border_color);
+
+    fill_color = glm::vec3(0.0, 1.0, 0.0);
+    fb.draw_polygon(&points4, fill_color, border_color);
+
+    fb.draw_polygon(&points5, background_color, background_color);
 
     // Guardar la imagen
     bmp::save_framebuffer_to_bmp(&fb, "out.bmp").expect("Failed to save BMP file");
